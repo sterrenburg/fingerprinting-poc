@@ -2,6 +2,8 @@
 #include <curl/curl.h>
 #include <string.h>
 
+#include "http_headers.h"
+
 const char * header_filter[3] = { "Server", "Accept", "Cache" };
 const int header_filter_size  = sizeof(header_filter) / sizeof(header_filter[0]);
 

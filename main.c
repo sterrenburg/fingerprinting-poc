@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <curl/curl.h>
 
+#include "fingerprint_functions/presence_in_file.h"
 #include "fingerprint_functions/http_headers.h"
 
 int fun1(char *hostname, CURL *curl) {
@@ -18,9 +19,9 @@ int fun3(char *hostname, CURL *curl) {
     return 33;
 }
 
-#define FINGERPRINT_FUNCTIONS 4
+#define FINGERPRINT_FUNCTIONS 5
 
-int (*fingerprint_functions[FINGERPRINT_FUNCTIONS])(char *hostname, CURL *curl) = {fun1, fun2, fun3, http_headers};
+int (*fingerprint_functions[FINGERPRINT_FUNCTIONS])(char *hostname, CURL *curl) = {fun1, fun2, fun3, http_headers, presence_in_file};
 
 CURL *fingerprint_init() {
     printf("%s\n", __func__);
