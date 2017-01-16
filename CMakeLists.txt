@@ -9,7 +9,10 @@ set(GCCWARNINGS
 set(CMAKE_C_FLAGS "${GCCWARNINGS} ${CMAKE_C_FLAGS}")
 
 set(FINGERPRINT_FUNCTION_SOURCES
-        fingerprint_functions/http_headers.c)
+        fingerprint_functions/http_headers.c
+        fingerprint_functions/http_headers.h
+        fingerprint_functions/presence_in_file.c
+        fingerprint_functions/presence_in_file.h)
 
 set(SOURCE_FILES
     main.c
