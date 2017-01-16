@@ -14,6 +14,7 @@ int header_filter_func(char *buffer) {
     printf("filter_func for %s", buffer);
     for(int i = 0; i < header_filter_size; i ++) {
         if(strstr(buffer, header_filter[i]) != NULL)
+            printf("found a match for %s with %s\n", buffer, header_filter[i]);
             return i;
 
         return 0;
