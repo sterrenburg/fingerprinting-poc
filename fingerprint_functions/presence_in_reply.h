@@ -1,6 +1,6 @@
 #ifndef FINGERPRINTING_POC_PRESENCE_IN_FILE_H
 #define FINGERPRINTING_POC_PRESENCE_IN_FILE_H
 
-int presence_in_file(char *hostname, CURL *curl);
+int presence_in_reply(char *hostname, CURL *curl);
 
 #endif //FINGERPRINTING_POC_PRESENCE_IN_FILE_H

@@ -11,13 +11,13 @@ set(CMAKE_C_FLAGS "${GCCWARNINGS} ${CMAKE_C_FLAGS}")
 set(FINGERPRINT_FUNCTION_SOURCES
         fingerprint_functions/http_headers.c
         fingerprint_functions/http_headers.h
-        fingerprint_functions/presence_in_file.c
-        fingerprint_functions/presence_in_file.h)
+        fingerprint_functions/presence_in_reply.c
+        fingerprint_functions/presence_in_reply.h)
 
 set(SOURCE_FILES
     main.c
-    ${FINGERPRINT_FUNCTION_SOURCES}
-)
+    debug.h
+    ${FINGERPRINT_FUNCTION_SOURCES})
 
 add_executable(fingerprinting_poc ${SOURCE_FILES})
 target_link_libraries(fingerprinting_poc curl)
