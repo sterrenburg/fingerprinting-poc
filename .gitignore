@@ -70,6 +70,7 @@ Temporary Items
 # Custom
 .idea
 fingerprinting_poc
+fingerprinting_poc.cbp
 cmake-build-debug/
 
 # User-specific stuff:
