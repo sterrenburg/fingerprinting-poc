@@ -70,6 +70,7 @@ Temporary Items
 # Custom
 .idea
 fingerprinting_poc
+cmake-build-debug/
 
 # User-specific stuff:
 .idea/workspace.xml
