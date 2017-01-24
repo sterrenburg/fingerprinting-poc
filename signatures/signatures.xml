@@ -1,0 +1,11 @@
+<SIGNATURE>
+    <NGINX>
+        <VERSION_ALL>
+            <HTTP_HEADERS>nginx</HTTP_HEADERS>
+            <PRESENCE_IN_REPLY>nginx</PRESENCE_IN_REPLY>
+        </VERSION_ALL>
+        <VERSION1.10.ALL>
+            <HTTP_HEADERS>1.10.*</HTTP_HEADERS>
+        </VERSION1.10.ALL>
+    </NGINX>
+</SIGNATURE>
