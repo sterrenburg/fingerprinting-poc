@@ -9,16 +9,16 @@ set(GCCWARNINGS
 set(CMAKE_C_FLAGS "${GCCWARNINGS} ${CMAKE_C_FLAGS}")
 
 set(FINGERPRINT_FUNCTION_SOURCES
-        fingerprint_functions/http_headers.c
-        fingerprint_functions/http_headers.h
-        fingerprint_functions/presence_in_reply.c
-        fingerprint_functions/presence_in_reply.h
-        fingerprint_functions/http_header_ordering.c
-        fingerprint_functions/http_header_ordering.h)
+        src/fingerprint_functions/http_headers.c
+        src/fingerprint_functions/http_headers.h
+        src/fingerprint_functions/presence_in_reply.c
+        src/fingerprint_functions/presence_in_reply.h
+        src/fingerprint_functions/http_header_ordering.c
+        src/fingerprint_functions/http_header_ordering.h)
 
 set(SOURCE_FILES
-    main.c
-    debug.h
+        src/main.c
+        src/debug.h
     ${FINGERPRINT_FUNCTION_SOURCES})
 
 add_executable(fingerprinting_poc ${SOURCE_FILES})
