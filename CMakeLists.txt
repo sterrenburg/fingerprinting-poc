@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.)
+cmake_minimum_required(VERSION 3.6)
 project(fingerprinting_poc)
 
 # Hardening and warnings for building with gcc
