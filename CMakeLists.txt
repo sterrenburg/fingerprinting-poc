@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.)
 project(fingerprinting_poc)
 
 # Hardening and warnings for building with gcc
@@ -26,7 +26,6 @@ add_executable(fingerprinting_poc ${SOURCE_FILES})
 
 find_package (LibXml2)
 if(LIBXML2_FOUND)
-    message(FATAL_ERROR "Did not find LIBXML2")
     include_directories(${LIBXML2_INCLUDE_DIR})
 else()
     MESSAGE("FATAL_ERROR could not find LIBXML2")
