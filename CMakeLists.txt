@@ -12,7 +12,9 @@ set(FINGERPRINT_FUNCTION_SOURCES
         fingerprint_functions/http_headers.c
         fingerprint_functions/http_headers.h
         fingerprint_functions/presence_in_reply.c
-        fingerprint_functions/presence_in_reply.h)
+        fingerprint_functions/presence_in_reply.h
+        fingerprint_functions/http-header-ordering.c
+        fingerprint_functions/http-header-ordering.h)
 
 set(SOURCE_FILES
     main.c
