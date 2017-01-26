@@ -12,6 +12,7 @@
 #include "fingerprint_functions/presence_in_reply.h"
 #include "fingerprint_functions/http_headers.h"
 #include "fingerprint_functions/http_header_ordering.h"
+#include "signatures/create_signature.h"
 #include "debug.h"
 
 int fun1(char *hostname, CURL *curl) {
@@ -81,5 +82,7 @@ int main() {
     CURL *curl = fingerprint_init();
 
     fingerprint_start(hostname, curl);
+
+    create_signature(hostname, curl);
     return 0;
 }

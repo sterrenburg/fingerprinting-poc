@@ -17,10 +17,15 @@ set(FINGERPRINT_FUNCTION_SOURCES
         src/fingerprint_functions/http_header_ordering.c
         src/fingerprint_functions/http_header_ordering.h)
 
+set(SIGNATURES_SOURCES
+        src/signatures/create_signature.c
+        src/signatures/create_signature.h)
+
 set(SOURCE_FILES
         src/main.c
         src/debug.h
-    ${FINGERPRINT_FUNCTION_SOURCES})
+        ${SIGNATURES_SOURCES}
+        ${FINGERPRINT_FUNCTION_SOURCES})
 
 add_executable(fingerprinting_poc ${SOURCE_FILES})
 
