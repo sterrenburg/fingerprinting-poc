@@ -9,14 +9,34 @@
 #include <stdio.h>
 #include <curl/curl.h>
 
-#include "fingerprint_functions/banner_report.h"
+#include "fingerprint_functions/fingerprint_functions.h"
 #include "signatures/create_signature.h"
 #include "debug.h"
 
-#define FINGERPRINT_FUNCTIONS 1
+int fingerprint_execute(char *hostname, CURL *curl, const char *output, int i) {
+    fingerprint_functions[i].function(hostname, curl, output);
+    D printf("] %s: %s > '%s'\n", __func__, fingerprint_functions[i].signature_handle, output);
+    return 0;
+}
 
-int (*fingerprint_functions[FINGERPRINT_FUNCTIONS])(char *hostname, CURL *curl) = {banner_report};
-//int (*fingerprint_functions[FINGERPRINT_FUNCTIONS])(char *hostname, CURL *curl) = {http_headers, presence_in_reply, http_header_ordering};
+int fingerprint_start(char *hostname, CURL *curl) {
+    D printf("] %s\n", __func__);
+
+    curl_easy_setopt(curl, CURLOPT_URL, hostname);
+
+    /* if hostname is redirected, tell libcurl to follow redirection */
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+    for(int i = 0; i < FINGERPRINT_FUNCTIONS_SIZE; i ++) {
+        const char output[50];
+        fingerprint_execute(hostname, curl, output, i);
+    }
+
+
+    /* Cleanup */
+    curl_easy_cleanup(curl);
+    curl_global_cleanup();
+}
 
 CURL *fingerprint_init() {
     D printf("] %s\n", __func__);
@@ -36,33 +56,15 @@ CURL *fingerprint_init() {
     return curl;
 }
 
-int fingerprint_start(char *hostname, CURL *curl) {
-    D printf("] %s\n", __func__);
-
-    curl_easy_setopt(curl, CURLOPT_URL, hostname);
-
-    /* if hostname is redirected, tell libcurl to follow redirection */
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
-    for(int i = 0; i < FINGERPRINT_FUNCTIONS; i ++) {
-        fingerprint_functions[i](hostname, curl);
-    }
-
-
-    /* Cleanup */
-    curl_easy_cleanup(curl);
-    curl_global_cleanup();
-}
-
 int main() {
     D printf("] %s\n", __func__);
 
-    char hostname[100] = "http://raspbian";
+    char hostname[100] = "http://example.com";
 
     CURL *curl = fingerprint_init();
 
     fingerprint_start(hostname, curl);
 
-    create_signature(hostname, curl);
+//    create_signature(hostname, curl);
     return 0;
 }

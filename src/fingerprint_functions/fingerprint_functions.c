@@ -6,9 +6,11 @@
  * of the License at https://opensource.org/licenses/MIT
  */
 
-#ifndef FINGERPRINTING_POC_BANNER_REPORT_H
-#define FINGERPRINTING_POC_BANNER_REPORT_H
+#include <curl/curl.h>
 
-int banner_report(char *hostname, CURL *curl, const char *output);
+#include "fingerprint_functions.h"
+#include "banner_report.h"
 
-#endif //FINGERPRINTING_POC_BANNER_REPORT_H
+struct fingerprint_function fingerprint_functions[] = {
+        { .signature_handle = "BANNER_REPORTED", .function = &banner_report }
+};

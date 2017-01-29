@@ -34,7 +34,7 @@ char *trimwhitespace(char *str)
     return str;
 }
 
-int banner_report(char *hostname, CURL *curl) {
+int banner_report(char *hostname, CURL *curl, const char *output) {
     D printf("] %s\n", __func__);
 
     int cutoff = strlen(headers[0]) + 2;
@@ -45,7 +45,7 @@ int banner_report(char *hostname, CURL *curl) {
 
     banner = &banner[cutoff];
 
-    printf("> Banner reported: %s\n", banner);
+    strncpy(output, banner, 50);
 
     return 0;
 }
