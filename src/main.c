@@ -9,30 +9,37 @@
 #include <stdio.h>
 #include <curl/curl.h>
 
-#include "fingerprint_functions/presence_in_reply.h"
-#include "fingerprint_functions/http_headers.h"
-#include "fingerprint_functions/http_header_ordering.h"
-#include "signatures/create_signature.h"
+#include "fingerprint_functions/fingerprint_functions.h"
+#include "signatures/signatures.h"
 #include "debug.h"
 
-int fun1(char *hostname, CURL *curl) {
-    printf("] %s\n", __func__);
-    return 11;
+int fingerprint_execute(char *hostname, CURL *curl, const char *output, int i) {
+    fingerprint_functions[i].function(hostname, curl, output);
+    D printf("] %s: %s > '%s'\n", __func__, fingerprint_functions[i].signature_handlgie, output);
+//    signatures_update("test.tmp", fingerprint_functions[i].signature_handle, output);
+    return 0;
 }
 
-int fun2(char *hostname, CURL *curl) {
-    printf("] %s\n", __func__);
-    return 22;
+int fingerprint_start(char *hostname, CURL *curl) {
+    D printf("] %s\n", __func__);
+
+    curl_easy_setopt(curl, CURLOPT_URL, hostname);
+
+    /* if hostname is redirected, tell libcurl to follow redirection */
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+    for(int i = 0; i < FINGERPRINT_FUNCTIONS_SIZE; i ++) {
+        const char output[50];
+        fingerprint_execute(hostname, curl, output, i);
+    }
+
+
+    /* Cleanup */
+    curl_easy_cleanup(curl);
+    curl_global_cleanup();
+
+    return 0;
 }
-
-int fun3(char *hostname, CURL *curl) {
-    printf("] %s\n", __func__);
-    return 33;
-}
-
-#define FINGERPRINT_FUNCTIONS 3
-
-int (*fingerprint_functions[FINGERPRINT_FUNCTIONS])(char *hostname, CURL *curl) = {http_headers, presence_in_reply, http_header_ordering};
 
 CURL *fingerprint_init() {
     D printf("] %s\n", __func__);
@@ -47,31 +54,9 @@ CURL *fingerprint_init() {
 
     /* some servers don't like requests that are made without a user-agent
        field, so we provide one */
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-fingerprint-agent/1.0");
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "zmap-fingerprint-agent/1.0");
 
     return curl;
-}
-
-int fingerprint_start(char *hostname, CURL *curl) {
-    D printf("] %s\n", __func__);
-
-    CURLcode res;
-
-    curl_easy_setopt(curl, CURLOPT_URL, hostname);
-
-    /* if hostname is redirected, tell libcurl to follow redirection */
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
-    /*for(int i = 0; i < FINGERPRINT_FUNCTIONS; i ++) {
-        printf("function %d(%s): %d\n", i, hostname, fingerprint_functions[i](hostname, curl));
-    }*/
-
-    fingerprint_functions[2](hostname, curl);
-
-    /* Cleanup */
-    curl_easy_cleanup(curl);
-
-    curl_global_cleanup();
 }
 
 int main() {
@@ -83,6 +68,9 @@ int main() {
 
     fingerprint_start(hostname, curl);
 
-    create_signature(hostname, curl);
+//    signatures(hostname, curl);
+
+    signatures_init("test.tmp");
+
     return 0;
 }

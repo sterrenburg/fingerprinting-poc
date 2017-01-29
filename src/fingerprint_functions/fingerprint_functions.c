@@ -5,10 +5,12 @@
  * use this file except in compliance with the License. You may obtain a copy
  * of the License at https://opensource.org/licenses/MIT
  */
-         
-#ifndef HTTP_HEADERS_H   /* Include guard */
-#define HTTP_HEADERS_H
 
-int http_headers(char *hostname, CURL *curl);
+#include <curl/curl.h>
 
-#endif // HTTP_HEADERS_H
+#include "fingerprint_functions.h"
+#include "banner_report.h"
+
+struct fingerprint_function fingerprint_functions[] = {
+        { .signature_handle = "BANNER_REPORTED", .function = &banner_report }
+};
