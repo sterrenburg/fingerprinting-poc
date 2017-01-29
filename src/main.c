@@ -9,15 +9,14 @@
 #include <stdio.h>
 #include <curl/curl.h>
 
-#include "fingerprint_functions/presence_in_reply.h"
-#include "fingerprint_functions/http_headers.h"
-#include "fingerprint_functions/http_header_ordering.h"
+#include "fingerprint_functions/banner_report.h"
 #include "signatures/create_signature.h"
 #include "debug.h"
 
-#define FINGERPRINT_FUNCTIONS 3
+#define FINGERPRINT_FUNCTIONS 1
 
-int (*fingerprint_functions[FINGERPRINT_FUNCTIONS])(char *hostname, CURL *curl) = {http_headers, presence_in_reply, http_header_ordering};
+int (*fingerprint_functions[FINGERPRINT_FUNCTIONS])(char *hostname, CURL *curl) = {banner_report};
+//int (*fingerprint_functions[FINGERPRINT_FUNCTIONS])(char *hostname, CURL *curl) = {http_headers, presence_in_reply, http_header_ordering};
 
 CURL *fingerprint_init() {
     D printf("] %s\n", __func__);
@@ -45,7 +44,10 @@ int fingerprint_start(char *hostname, CURL *curl) {
     /* if hostname is redirected, tell libcurl to follow redirection */
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
-    fingerprint_functions[2](hostname, curl);
+    for(int i = 0; i < FINGERPRINT_FUNCTIONS; i ++) {
+        fingerprint_functions[i](hostname, curl);
+    }
+
 
     /* Cleanup */
     curl_easy_cleanup(curl);
@@ -55,7 +57,7 @@ int fingerprint_start(char *hostname, CURL *curl) {
 int main() {
     D printf("] %s\n", __func__);
 
-    char hostname[100] = "http://example.com";
+    char hostname[100] = "http://raspbian";
 
     CURL *curl = fingerprint_init();
 

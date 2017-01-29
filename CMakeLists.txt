@@ -10,12 +10,16 @@ set(CMAKE_C_FLAGS "${GCCWARNINGS} ${CMAKE_C_FLAGS}")
 
 # Add fingerprint functions here
 set(FINGERPRINT_FUNCTION_SOURCES
-        src/fingerprint_functions/http_headers.c
-        src/fingerprint_functions/http_headers.h
         src/fingerprint_functions/presence_in_reply.c
         src/fingerprint_functions/presence_in_reply.h
         src/fingerprint_functions/http_header_ordering.c
-        src/fingerprint_functions/http_header_ordering.h)
+        src/fingerprint_functions/http_header_ordering.h
+        src/fingerprint_functions/banner_report.c
+        src/fingerprint_functions/banner_report.h)
+
+set(RESOURCE_SOURCES
+        src/resources/http_headers.c
+        src/resources/http_headers.h)
 
 set(SIGNATURES_SOURCES
         src/signatures/create_signature.c
@@ -24,6 +28,7 @@ set(SIGNATURES_SOURCES
 set(SOURCE_FILES
         src/main.c
         src/debug.h
+        ${RESOURCE_SOURCES}
         ${SIGNATURES_SOURCES}
         ${FINGERPRINT_FUNCTION_SOURCES})
 
@@ -40,5 +45,3 @@ endif()
 
 target_link_libraries(fingerprinting_poc curl)
 target_link_libraries (fingerprinting_poc ${LIBXML2_LIBRARIES})
-
-MESSAGE("done")
