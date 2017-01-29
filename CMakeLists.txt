@@ -26,8 +26,8 @@ set(RESOURCE_SOURCES
         src/resources/http_headers.h)
 
 set(SIGNATURES_SOURCES
-        src/signatures/create_signature.c
-        src/signatures/create_signature.h)
+        src/signatures/signatures.c
+        src/signatures/signatures.h)
 
 set(SOURCE_FILES
         src/main.c

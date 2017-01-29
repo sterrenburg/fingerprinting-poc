@@ -16,6 +16,6 @@ struct fingerprint_function {
     int (*function)(char *hostname, CURL *curl, const char *output);
 };
 
-struct fingerprint_function fingerprint_functions[];
+struct fingerprint_function fingerprint_functions[FINGERPRINT_FUNCTIONS_SIZE];
 
 #endif //FINGERPRINTING_POC_FINGERPRINT_FUNCTIONS_H
