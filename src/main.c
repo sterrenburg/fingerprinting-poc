@@ -15,7 +15,7 @@
 
 int fingerprint_execute(char *hostname, CURL *curl, const char *output, int i) {
     fingerprint_functions[i].function(hostname, curl, output);
-    D printf("] %s: %s > '%s'\n", __func__, fingerprint_functions[i].signature_handlgie, output);
+    D printf("] %s: %s > '%s'\n", __func__, fingerprint_functions[i].signature_handle, output);
 //    signatures_update("test.tmp", fingerprint_functions[i].signature_handle, output);
     return 0;
 }
