@@ -1,11 +1,21 @@
-<SIGNATURE>
+<SIGNATURES>
     <NGINX>
         <VERSION_ALL>
-            <HTTP_HEADERS>nginx</HTTP_HEADERS>
-            <PRESENCE_IN_REPLY>nginx</PRESENCE_IN_REPLY>
+            <BANNER_REPORTED>nginx</BANNER_REPORTED>
         </VERSION_ALL>
-        <VERSION1.10.ALL>
-            <HTTP_HEADERS>1.10.*</HTTP_HEADERS>
-        </VERSION1.10.ALL>
+        <VERSION_1.10.2>
+            <BANNER_REPORTED>nginx/1.10.2</BANNER_REPORTED>
+        </VERSION_1.10.2>
     </NGINX>
-</SIGNATURE>
+    <APACHE>
+        <VERSION_ALL>
+            <BANNER_REPORTED>Apache</BANNER_REPORTED>
+        </VERSION_ALL>
+        <VERSION_2.2.32>
+            <BANNER_REPORTED>Apache/2.2.32</BANNER_REPORTED>
+        </VERSION_2.2.32>
+        <VERSION_1.1.1>
+            <BANNER_REPORTED>Apache/2.4.25</BANNER_REPORTED>
+        </VERSION_1.1.1>
+    </APACHE>
+</SIGNATURES>
