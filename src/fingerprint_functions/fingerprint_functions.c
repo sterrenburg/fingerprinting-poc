@@ -11,6 +11,6 @@
 #include "fingerprint_functions.h"
 #include "banner_report.h"
 
-struct fingerprint_function fingerprint_functions[] = {
+struct fingerprint_function fingerprint_header_functions[] = {
         { .signature_handle = "BANNER_REPORTED", .function = &banner_report }
 };

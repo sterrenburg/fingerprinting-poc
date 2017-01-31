@@ -10,12 +10,20 @@
 #define FINGERPRINTING_POC_FINGERPRINT_FUNCTIONS_H
 
 #define FINGERPRINT_FUNCTIONS_SIZE 1
+#define FINGERPRINT_HEADER_FUNCTIONS_SIZE 1
+
+struct string {
+    char *ptr;
+    size_t len;
+};
 
 struct fingerprint_function {
     char signature_handle[50];
-    int (*function)(char *hostname, CURL *curl, const char *output);
+//    int (*function)(char *hostname, CURL *curl, const char *output);
+    int (*function)(void *ptr, const char *output);
 };
 
 struct fingerprint_function fingerprint_functions[FINGERPRINT_FUNCTIONS_SIZE];
+struct fingerprint_function fingerprint_header_functions[FINGERPRINT_HEADER_FUNCTIONS_SIZE];
 
 #endif //FINGERPRINTING_POC_FINGERPRINT_FUNCTIONS_H

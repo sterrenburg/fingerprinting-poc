@@ -9,6 +9,8 @@
 #ifndef FINGERPRINTING_POC_BANNER_REPORT_H
 #define FINGERPRINTING_POC_BANNER_REPORT_H
 
-int banner_report(char *hostname, CURL *curl, const char *output);
+#include "fingerprint_functions.h"
+
+int banner_report(void *ptr, const char *output);
 
 #endif //FINGERPRINTING_POC_BANNER_REPORT_H

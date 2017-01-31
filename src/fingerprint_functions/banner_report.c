@@ -9,16 +9,15 @@
 #include <curl/curl.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
 #include "banner_report.h"
-#include "../resources/http_headers.h"
 #include "../debug.h"
 
-const char *headers[1] = {"Server"};
-const int headers_size = 1;
+const char *server_header = "Server";
 
-char *trimwhitespace(char *str)
-{
+char *trim_whitespace(const char *str) {
     char *end;
 
     while(isspace((unsigned char)*str)) str++;
@@ -34,18 +33,33 @@ char *trimwhitespace(char *str)
     return str;
 }
 
-int banner_report(char *hostname, CURL *curl, const char *output) {
+/** Search header strings for presence of Server attribute
+ *
+ * @param ptr       the pointer of the obtained header
+ * @param result    the pointer in which to store the result
+ * @return          1 if the substring is found, 0 otherwise
+ */
+int find_server_banner(void *ptr) {
+        if (strstr(ptr, "Server") != NULL) {
+            return true;
+        }
+
+    return false;
+}
+
+int banner_report(void *ptr, const char *output) {
     D printf("] %s\n", __func__);
 
-    int cutoff = strlen(headers[0]) + 2;
+    int cutoff = strlen(server_header) + 2;
 
-    char *banner = http_headers(hostname, curl, headers, headers_size);
+    if(find_server_banner(ptr)) {
+        ptr = trim_whitespace(ptr);
 
-    banner = trimwhitespace(banner);
+        strncpy(output, ptr + cutoff, 50);
 
-    banner = &banner[cutoff];
+        output = output + cutoff;
 
-    strncpy(output, banner, 50);
+    }
 
     return 0;
 }

@@ -23,7 +23,9 @@ set(FINGERPRINT_FUNCTION_SOURCES
 
 set(RESOURCE_SOURCES
         src/resources/http_headers.c
-        src/resources/http_headers.h)
+        src/resources/http_headers.h
+        src/resources/array.c
+        src/resources/array.h)
 
 set(SIGNATURES_SOURCES
         src/signatures/signatures.c
