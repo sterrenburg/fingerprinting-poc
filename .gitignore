@@ -4,6 +4,7 @@ fingerprinting_poc
 fingerprinting_poc.cbp
 cmake-build-debug/
 *.tmp
+/docker/docker.log
 
 ### Linux ###
 *~
@@ -184,5 +185,3 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
-
-# End of https://www.gitignore.io/api/linux,windows,osx,intellij,c,cmake
