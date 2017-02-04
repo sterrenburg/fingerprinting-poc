@@ -6,6 +6,7 @@
  * of the License at https://opensource.org/licenses/MIT
  */
 
+#include <stdbool.h>
 #include "array.h"
 
 void array_init(Array *a, size_t initialSize) {

@@ -1,11 +1,16 @@
+<?xml version="1.0"?>
 <SIGNATURES>
     <NGINX>
         <VERSION_ALL>
             <BANNER_REPORTED>nginx</BANNER_REPORTED>
+            <HEADER_ORDER>ordering_here</HEADER_ORDER>
         </VERSION_ALL>
         <VERSION_1.10.2>
             <BANNER_REPORTED>nginx/1.10.2</BANNER_REPORTED>
         </VERSION_1.10.2>
+        <VERSION_1.11.1>
+            <BANNER_REPORTED>nginx/1.11.1</BANNER_REPORTED>
+        </VERSION_1.11.1>
     </NGINX>
     <APACHE>
         <VERSION_ALL>

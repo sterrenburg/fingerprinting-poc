@@ -45,6 +45,8 @@ size_t response_callback(void *ptr, size_t size, size_t nmemb, struct string *s)
 
 size_t response_callback_header(void *ptr, size_t size, size_t nmemb, struct string *s)
 {
+    size_t result = size*nmemb;
+
     if(output[0] == '\0') {
         size_t new_len = s->len + size * nmemb;
         s->ptr = realloc(s->ptr, new_len + 1);
@@ -58,7 +60,67 @@ size_t response_callback_header(void *ptr, size_t size, size_t nmemb, struct str
 
         /* For each header received, process the fingerprint_header functions */
         for (int i = 0; i < FINGERPRINT_HEADER_FUNCTIONS_SIZE; i++) {
-            fingerprint_header_functions[i].function(ptr, output);
+            struct Fingerprint_function fingerprint_function = fingerprint_header_functions[i];
+            fingerprint_function.function(ptr, output);
+
+            /* Skip server detection if response is emtpy */
+            if(output[0] == '\0') {
+                continue;
+            }
+
+            // TODO move to 1 exec location
+            /* Create a server list to compare responses to */
+            Array server_list;
+            get_server_list(&server_list);
+
+            /* Check if the response matches any server */
+            // TODO make loop only run on relevant server name */
+            if(!is_in_server_list(output, server_list)) {
+                printf("output '%s' not in serverlist '", output);
+                for(int h = 0; h < server_list.size; h ++) {
+                    printf("%s - ", server_list.array[h]);
+                }
+
+                printf("'\n");
+
+                signature_file.undefined ++;
+
+                continue;
+            }
+
+            printf("[%s::: %s\n", fingerprint_function.signature_handle, output);
+
+            for(int i = 0; i < signature_file.size; i ++) {
+                struct Signature_server server = signature_file.servers[i];
+                printf("> server to try: %s\n", server.name);
+
+                /* Skip version detection if server type cannot be determined */
+                /*if(strcasestr(output, server.name) == NULL) {
+                    printf(" > undefined server tag for '%s'\n", output);
+                    signature_file.undefined ++;
+                    continue;
+                }*/
+
+                for(int j = 0; j < server.size; j ++) {
+                    struct Signature_version version = server.versions[j];
+                    printf(">> version: %s\n", version.name);
+
+                    // functions
+                    for(int k = 0; k < FINGERPRINT_FUNCTIONS_SIZE; k ++) {
+                        struct Signature_function signature_function = version.functions[k];
+                        if(strncmp(signature_function.name, fingerprint_function.signature_handle, 50) == 0) {
+                            if(strcasestr(output, signature_function.output) != NULL) {
+                                printf("Verdict: %s/%s\n", server.name, version.name);
+
+                                printf("increasing %s/%s\n", server.name, version.name);
+                                signature_file.servers[i].versions[j].frequency ++;
+
+                                return result;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -138,7 +200,7 @@ CURL *fingerprint_init() {
 int main() {
     D printf("] %s\n", __func__);
 
-    char hostname[100] = "http://localhost:8083";
+    char hostname[100] = "http://example.com";
 
     CURL *curl = fingerprint_init();
 
@@ -147,6 +209,8 @@ int main() {
 //    signatures(hostname, curl);
 
     signatures_init("test.tmp");
+
+    print_fingerprint_output();
 
     return 0;
 }
