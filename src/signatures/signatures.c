@@ -115,7 +115,7 @@ int get_server_list(Array *array) {
     return 0;
 }
 
-bool is_in_server_list(char *needle, Array haystack) {
+bool is_in_server_list(const char *needle, Array haystack) {
     int i;
     for (i = 0; i < haystack.size; i++) {
         if (strcasestr(needle, haystack.array[i])) {

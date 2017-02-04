@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <curl/curl.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "fingerprint_functions/fingerprint_functions.h"
 #include "signatures/signatures.h"
@@ -45,6 +46,7 @@ size_t response_callback(void *ptr, size_t size, size_t nmemb, struct string *s)
 
 size_t response_callback_header(void *ptr, size_t size, size_t nmemb, struct string *s)
 {
+//    D printf("] %s: %s\n", __func__, ptr);
     size_t result = size*nmemb;
 
     if(output[0] == '\0') {
@@ -57,11 +59,12 @@ size_t response_callback_header(void *ptr, size_t size, size_t nmemb, struct str
         memcpy(s->ptr + s->len, ptr, size * nmemb);
         s->ptr[new_len] = '\0';
         s->len = new_len;
-
+        printf("/* For each header received, process the fingerprint_header functions */\n");
         /* For each header received, process the fingerprint_header functions */
         for (int i = 0; i < FINGERPRINT_HEADER_FUNCTIONS_SIZE; i++) {
             struct Fingerprint_function fingerprint_function = fingerprint_header_functions[i];
             fingerprint_function.function(ptr, output);
+
 
             /* Skip server detection if response is emtpy */
             if(output[0] == '\0') {
@@ -88,7 +91,7 @@ size_t response_callback_header(void *ptr, size_t size, size_t nmemb, struct str
                 continue;
             }
 
-            printf("[%s::: %s\n", fingerprint_function.signature_handle, output);
+//            printf("[%s::: %s\n", fingerprint_function.signature_handle, output);
 
             for(int i = 0; i < signature_file.size; i ++) {
                 struct Signature_server server = signature_file.servers[i];
@@ -110,9 +113,9 @@ size_t response_callback_header(void *ptr, size_t size, size_t nmemb, struct str
                         struct Signature_function signature_function = version.functions[k];
                         if(strncmp(signature_function.name, fingerprint_function.signature_handle, 50) == 0) {
                             if(strcasestr(output, signature_function.output) != NULL) {
-                                printf("Verdict: %s/%s\n", server.name, version.name);
+                                printf(">>> Verdict: %s/%s\n", server.name, version.name);
 
-                                printf("increasing %s/%s\n", server.name, version.name);
+//                                printf("increasing %s/%s\n", server.name, version.name);
                                 signature_file.servers[i].versions[j].frequency ++;
 
                                 return result;
@@ -128,17 +131,36 @@ size_t response_callback_header(void *ptr, size_t size, size_t nmemb, struct str
 }
 
 int process_header_output() {
-    D printf("] %s\n", __func__);
-    printf("] current output: '%s'\n", output);
+//    D printf("] %s\n", __func__);
+//    printf("] current output: '%s'\n", output);
 
     // TODO map to existing signatures here
 
     return 0;
 }
 
-int fingerprint_start(char *hostname, CURL *curl) {
-    D printf("] %s\n", __func__);
+CURL *fingerprint_init() {
+//    D printf("] %s\n", __func__);
 
+    CURL *curl;
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    curl = curl_easy_init();
+    if(!curl)
+        printf("Failed to initialize CURL");
+
+    /* some servers don't like requests that are made without a user-agent
+       field, so we provide one */
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "zmap-fingerprint-agent/1.0");
+
+    return curl;
+}
+
+int fingerprint_start(char *hostname) {
+//    D printf("] %s: %s\n", __func__, hostname);
+
+    CURL *curl = fingerprint_init();
     CURLcode res;
     struct string response_body, response_header;
 
@@ -179,36 +201,20 @@ int fingerprint_start(char *hostname, CURL *curl) {
     return 0;
 }
 
-CURL *fingerprint_init() {
-    D printf("] %s\n", __func__);
-
-    CURL *curl;
-
-    curl_global_init(CURL_GLOBAL_ALL);
-
-    curl = curl_easy_init();
-    if(!curl)
-        printf("Failed to initialize CURL");
-
-    /* some servers don't like requests that are made without a user-agent
-       field, so we provide one */
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "zmap-fingerprint-agent/1.0");
-
-    return curl;
-}
-
 int main() {
     D printf("] %s\n", __func__);
 
     char hostname[100] = "http://example.com";
 
-    CURL *curl = fingerprint_init();
+    char *hostnames[3] = { "localhost:8080", "localhost:8081", "localhost:8082" };
 
-    fingerprint_start(hostname, curl);
+//    CURL *curl = fingerprint_init();
 
-//    signatures(hostname, curl);
-
-    signatures_init("test.tmp");
+    for(int i = 0; i < 3; i ++) {
+        printf("Trying for %s\n", hostnames[i]);
+        fingerprint_start(hostnames[i]);
+        usleep(1000000);
+    }
 
     print_fingerprint_output();
 

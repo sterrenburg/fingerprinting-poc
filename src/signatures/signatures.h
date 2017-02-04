@@ -47,7 +47,7 @@ struct Signature_file {
 };
 
 int get_server_list(Array *array);
-bool is_in_server_list(char *needle, Array haystack);
+bool is_in_server_list(const char *needle, Array haystack);
 
 struct Signature_file signature_file;
 
