@@ -48,7 +48,7 @@ int find_server_banner(void *ptr) {
 }
 
 int banner_report(void *ptr, const char *output) {
-    D printf("] %s: %s\n", __func__, ptr);
+//    D printf("] %s: %s\n", __func__, ptr);
 
     int cutoff = strlen(server_header) + 2;
 

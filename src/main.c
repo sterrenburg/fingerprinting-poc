@@ -9,15 +9,21 @@
 #include <stdio.h>
 #include <curl/curl.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "fingerprint_functions/fingerprint_functions.h"
 #include "signatures/signatures.h"
 #include "debug.h"
 #include "resources/array.h"
 
+#define STATUS_SUCCESS 0
+#define STATUS_FAILURE 1
+#define STATUS_ERROR   2
+
 Array header_array;
 const char output[50];
+char *hostname;
+
+int status;
 
 void init_string(struct string *s) {
     s->len = 0;
@@ -38,9 +44,10 @@ int process_header_function_server_version(struct Fingerprint_function fingerpri
         if(strncmp(signature_function.name, fingerprint_function.signature_handle, 50) == 0) {
 
             if(strcasestr(output, signature_function.output) != NULL) {
-                printf(">>> Verdict: %s/%s\n", signature_file.servers[server_index].name, signature_file.servers[server_index].versions[version_index].name);
+                D printf(SUCCESS "%s:" RESET " matched with %s/%s\n\n", hostname, signature_file.servers[server_index].name, signature_file.servers[server_index].versions[version_index].name);
 
                 signature_file.servers[server_index].versions[version_index].frequency ++;
+//                status = STATUS_SUCCESS;
 
                 return 0;
             }
@@ -56,10 +63,11 @@ int process_header_function_server(struct Fingerprint_function fingerprint_funct
     struct Signature_version version;
 
     server = signature_file.servers[server_index];
+    res = -1;
 
     for(int j = 0; j < server.size; j ++) {
         version = server.versions[j];
-        D printf("] %s: trying version %s\n", server.name, version.name);
+        D printf(INFO "%s: " RESET "trying to match with %s/%s\n", hostname, server.name, version.name);
 
         res = process_header_function_server_version(fingerprint_function, server_index, j);
         if(res == 0) {
@@ -80,7 +88,7 @@ int process_header_function(void *ptr, int i, Array server_list) {
 
     /* Skip server detection if output is emtpy */
     if(output[0] == '\0') {
-        printf("%s: output is empty\n", fingerprint_function.signature_handle);
+//        D printf("%s: output is empty\n", fingerprint_function.signature_handle);
         return 1;
     }
 
@@ -89,28 +97,28 @@ int process_header_function(void *ptr, int i, Array server_list) {
 
     // TODO debug
     const char *server_name = (server_index == -1) ? ("none") : (signature_file.servers[server_index].name);
-    printf("server_index: %d (%s)\n", server_index, server_name);
+//    D printf("server_index: %d (%s)\n", server_index, server_name);
 
     if(server_index < 0) {
-        signature_file.undefined ++;
-
         // TODO debug
-        printf("%s: server '%s' not in serverlist '", fingerprint_function.signature_handle, output);
+        /*printf("%s: server '%s' not in serverlist '", fingerprint_function.signature_handle, output);
         for(int h = 0; h < server_list.size; h ++) {
             printf("%s - ", server_list.array[h]);
         }
 
-        printf("', increasing undefined\n");
+        printf("'\n");*/
 
         return 1;
     }
 
     signature_file.servers[server_index].frequency ++;
+    status = STATUS_SUCCESS;
 
     return process_header_function_server(fingerprint_function, server_index);
 }
 
 size_t process_header_functions(void *ptr) {
+//    D printf(">> %s: %s\n", __func__, ptr);
     int res;
     /* Create a server list to compare responses to */
     Array server_list;
@@ -131,7 +139,8 @@ size_t process_header_functions(void *ptr) {
 }
 
 /* Process body response */
-size_t response_callback(void *ptr, size_t size, size_t nmemb, struct string *s) {
+size_t response_callback_body(void *ptr, size_t size, size_t nmemb, struct string *s) {
+    D printf("> %s: %s\n", __func__, ptr);
     size_t new_len = s->len + size*nmemb;
     s->ptr = realloc(s->ptr, new_len+1);
     if (s->ptr == NULL) {
@@ -147,7 +156,7 @@ size_t response_callback(void *ptr, size_t size, size_t nmemb, struct string *s)
 
 /* Process header response */
 size_t response_callback_header(void *ptr, size_t size, size_t nmemb, struct string *s) {
-//    D printf("] %s: %s\n", __func__, ptr);
+//    D printf("> %s: %s\n", __func__, ptr);
 
     if(output[0] == '\0') {
         size_t new_len = s->len + size * nmemb;
@@ -166,40 +175,14 @@ size_t response_callback_header(void *ptr, size_t size, size_t nmemb, struct str
         process_header_functions(ptr);
     }
 
+//    printf("%s: returning %d\n",  __func__, size*nmemb);
     return size*nmemb;
 }
 
-int process_header_output() {
-//    D printf("] %s\n", __func__);
-//    printf("] current output: '%s'\n", output);
-
-    // TODO map to existing signatures here
-
-    return 0;
-}
-
-CURL *fingerprint_init() {
-//    D printf("] %s\n", __func__);
+int fingerprint_start() {
+    D printf("] %s: %s\n", __func__, hostname);
 
     CURL *curl;
-
-    curl_global_init(CURL_GLOBAL_ALL);
-
-    curl = curl_easy_init();
-    if(!curl)
-        printf("Failed to initialize CURL");
-
-    /* some servers don't like requests that are made without a user-agent
-       field, so we provide one */
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "zmap-fingerprint-agent/1.0");
-
-    return curl;
-}
-
-int fingerprint_start(char *hostname) {
-//    D printf("] %s: %s\n", __func__, hostname);
-
-    CURL *curl = fingerprint_init();
     CURLcode res;
     struct string response_body, response_header;
 
@@ -210,7 +193,7 @@ int fingerprint_start(char *hostname) {
 
     curl_easy_setopt(curl, CURLOPT_URL, hostname);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, response_callback);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, response_callback_body);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_body);
     curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, response_callback_header);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &response_header);
@@ -221,8 +204,6 @@ int fingerprint_start(char *hostname) {
         fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
         return -1;
     }
-
-    process_header_output();
 
 //    printf("header: \n%s\n", response_header.ptr);
 //    printf("body: \n%s\n", response_body.ptr);
@@ -241,25 +222,88 @@ int fingerprint_start(char *hostname) {
     return 0;
 }
 
+int curl_start() {
+    D printf(INFO "%s: " RESET "start\n", hostname);
+    CURL *curl;
+    CURLcode res;
+
+    /* Reset global output and success variables */
+    strncpy(output, "\0", 1);
+    status = STATUS_FAILURE;
+
+    struct string response_body, response_header;
+
+    curl = curl_easy_init();
+
+    init_string(&response_body);
+    init_string(&response_header);
+    if(curl) {
+
+        curl_easy_setopt(curl, CURLOPT_URL, hostname);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
+//        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, response_callback);
+//        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_body);
+        curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, response_callback_header);
+        curl_easy_setopt(curl, CURLOPT_HEADERDATA, &response_header);
+
+        /* Perform the request, res will get the return code */
+        res = curl_easy_perform(curl);
+        if(res != CURLE_OK) {
+            printf(ERROR "%s: %s\n" RESET, hostname, curl_easy_strerror(res));
+            status = STATUS_ERROR;
+        }
+
+        if(status == STATUS_FAILURE) {
+            D printf(WARNING "%s:" RESET " no match with header response, trying body response\n", hostname);
+
+            // TODO implement body response handling
+            curl_easy_setopt(curl, CURLOPT_NOBODY, 0L);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, response_callback_body);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_body);
+
+            /*res = curl_easy_perform(curl);
+            if(res != CURLE_OK) {
+                D printf(ERROR "curl_easy_perform() failed: %s\n" RESET, curl_easy_strerror(res));
+            }*/
+        }
+
+
+        if(status != STATUS_SUCCESS) {
+            D printf(ERROR "%s:" RESET " no signature found\n\n", hostname);
+            signature_file.undefined ++;
+        }
+
+
+//        printf("header: \n%s\n", response_header.ptr);
+//        printf("body: \n%s\n", response_body.ptr);
+
+        /* always cleanup */
+        curl_easy_cleanup(curl);
+
+        free(response_body.ptr);
+        free(response_header.ptr);
+    }
+
+    return 0;
+}
+
 int main() {
 //    D printf("] %s\n", __func__);
 
-//    char hostname[100] = "http://example.com";
-
 //    char *hostnames[4] = { "example.com", "localhost:8080", "localhost:8081", "localhost:8082" };
-    char *hostnames[4] = { "localhost:8084", "localhost:8080", "localhost:8081", "localhost:8082" };
+    char *hostnames[6] = { "localhost:8080", "example.com" , "localhost:8081", "localhost:8082", "localhost:8083", "localhost:8084" };
 
-//    CURL *curl = fingerprint_init();
+    curl_global_init(CURL_GLOBAL_ALL);
 
-    for(int i = 0; i < 4; i ++) {
-        printf("Trying for %s\n", hostnames[i]);
-        fingerprint_start(hostnames[i]);
-//        usleep(1000000);
+    for(int i = 0; i < 6; i ++) {
+        hostname = hostnames[i];
+        curl_start(hostname);
     }
 
     curl_global_cleanup();
 
-    print_fingerprint_output();
+    fingerprint_output();
 
     return 0;
 }

@@ -101,8 +101,8 @@ int is_in_server_list(const char *needle, Array haystack) {
     return -1;
 }
 
-void print_fingerprint_output() {
-    D printf("] %s\n", __func__);
+void fingerprint_output() {
+    D printf(INFO "%s\n" RESET, __func__);
     for(int i = 0; i < signature_file.size; i ++) {
         printf("-------------------\n");
         struct Signature_server server = signature_file.servers[i];

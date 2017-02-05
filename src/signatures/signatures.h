@@ -50,7 +50,7 @@ struct Signature_file signature_file;
 
 void get_server_list(Array *array);
 int is_in_server_list(const char *needle, Array haystack);
-void print_fingerprint_output();
+void fingerprint_output();
 
 
 #endif //FINGERPRINTING_POC_CREATE_SIGNATURE_H
