@@ -58,18 +58,18 @@ int process_header_function_server_version(struct Fingerprint_function fingerpri
 }
 
 int process_header_function_server(struct Fingerprint_function fingerprint_function, int server_index) {
-    int res;
+    int res, i;
     struct Signature_server server;
     struct Signature_version version;
 
     server = signature_file.servers[server_index];
     res = -1;
 
-    for(int j = 0; j < server.size; j ++) {
-        version = server.versions[j];
+    for(i = 0; i < server.size; i ++) {
+        version = server.versions[i];
         D printf(INFO "%s: " RESET "trying to match with %s/%s\n", hostname, server.name, version.name);
 
-        res = process_header_function_server_version(fingerprint_function, server_index, j);
+        res = process_header_function_server_version(fingerprint_function, server_index, i);
         if(res == 0) {
             break;
         }
@@ -201,7 +201,7 @@ int fingerprint_start() {
     // TODO get request response and send to fingerprint_execute
     res = curl_easy_perform(curl);
     if(res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+//        D printf(ERROR "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
         return -1;
     }
 
@@ -239,6 +239,7 @@ int curl_start() {
     init_string(&response_header);
     if(curl) {
 
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, "zmap-fingerprinting/1.0");
         curl_easy_setopt(curl, CURLOPT_URL, hostname);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
@@ -250,7 +251,7 @@ int curl_start() {
         /* Perform the request, res will get the return code */
         res = curl_easy_perform(curl);
         if(res != CURLE_OK) {
-            printf(ERROR "%s: %s\n" RESET, hostname, curl_easy_strerror(res));
+            printf(ERROR "%s: " RESET "%s\n", hostname, curl_easy_strerror(res));
             status = STATUS_ERROR;
         }
 
@@ -292,11 +293,11 @@ int main() {
 //    D printf("] %s\n", __func__);
 
 //    char *hostnames[4] = { "example.com", "localhost:8080", "localhost:8081", "localhost:8082" };
-    char *hostnames[6] = { "localhost:8080", "example.com" , "localhost:8081", "localhost:8082", "localhost:8083", "localhost:8084" };
+    char *hostnames[5] = { "localhost:8080", "localhost:8081", "localhost:8082", "localhost:8083", "91.184.13.76" };
 
     curl_global_init(CURL_GLOBAL_ALL);
 
-    for(int i = 0; i < 6; i ++) {
+    for(int i = 0; i < 5; i ++) {
         hostname = hostnames[i];
         curl_start(hostname);
     }

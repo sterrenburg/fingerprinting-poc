@@ -106,7 +106,7 @@ void fingerprint_output() {
     for(int i = 0; i < signature_file.size; i ++) {
         printf("-------------------\n");
         struct Signature_server server = signature_file.servers[i];
-        printf("%d\t%s\n", server.frequency, server.name);
+        printf("%d\t%s (total)\n", server.frequency, server.name);
 
         for(int j = 0; j < server.size; j ++) {
             struct Signature_version version = server.versions[j];
