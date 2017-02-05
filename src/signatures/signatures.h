@@ -46,20 +46,11 @@ struct Signature_file {
     int undefined;
 };
 
-int get_server_list(Array *array);
-bool is_in_server_list(const char *needle, Array haystack);
-
 struct Signature_file signature_file;
 
-void testXmlwriterFilename(const char *uri);
-void testXmlwriterMemory(const char *file);
-void testXmlwriterDoc(const char *file);
-void testXmlwriterTree(const char *file);
-xmlChar *ConvertInput(const char *in, const char *encoding);
+void get_server_list(Array *array);
+int is_in_server_list(const char *needle, Array haystack);
+void print_fingerprint_output();
 
-int signatures(char *hostname, CURL *curl);
-int signatures_init(const char *uri);
-int signatures_parse(const char *uri);
-int signatures_update(const char *uri, const char *signature_handle, const char *output);
 
 #endif //FINGERPRINTING_POC_CREATE_SIGNATURE_H
