@@ -1,8 +1,21 @@
 ## Dependencies
+
+### Core
 - [Libxml2](http://xmlsoft.org/)
 
-## Signatures
-To view the formatted output of an XML signature, format it yourself using [xmllint](http://xmlsoft.org/xmllint.html):
+### Local servers
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
+
+## Compose
+To run a variety of web servers for testing frmo the `docker` directory:
 ```
-cat <signature_file> | xmllint --format -
+# Start containers
+docker-compose up -d
+
+# View container logs
+docker-compose logs -f
+
+# Remove container images
+docker-compose down
 ```
