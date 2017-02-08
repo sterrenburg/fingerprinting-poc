@@ -33,9 +33,9 @@ struct Signature_version {
 };
 
 struct Signature_server {
-    const char *name;
+    char *name;
     struct Signature_version *versions;
-    const int size;
+    int size;
     int frequency;
 };
 
