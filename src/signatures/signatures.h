@@ -29,6 +29,7 @@ struct Signature_function {
 struct Signature_version {
     const char *name;
     struct Signature_function *functions;
+    int size;
     int frequency;
 };
 
